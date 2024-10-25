@@ -10,8 +10,8 @@ app.use(requestLogger);
 
 // Routes
 app.get('/', async (_req, res) => {
-    res.send('app is working');
-})
+  res.send('app is working');
+});
 app.use(errorMiddleware);
 
 export default app;

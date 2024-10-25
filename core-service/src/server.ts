@@ -4,17 +4,17 @@ import logger from './config/logger';
 import prisma from './database/prismaClient';
 
 app.listen(config.port, () => {
-    logger.info(`Server is running on port ${config.port}`);
+  logger.info(`Server is running on port ${config.port}`);
 });
 
 process.on('SIGINT', async () => {
-    logger.debug('SIGINT signal received: closing HTTP server');
-    await prisma.$disconnect();
-    process.exit(0);
+  logger.debug('SIGINT signal received: closing HTTP server');
+  await prisma.$disconnect();
+  process.exit(0);
 });
 
 process.on('SIGTERM', async () => {
-    logger.debug('SIGTERM signal received: closing HTTP server');
-    await prisma.$disconnect();
-    process.exit(0);
+  logger.debug('SIGTERM signal received: closing HTTP server');
+  await prisma.$disconnect();
+  process.exit(0);
 });
