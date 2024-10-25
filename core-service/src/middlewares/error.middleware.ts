@@ -1,11 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import { HttpException } from '../exceptions/HttpException';
 import logger from '../config/logger';
+import config from '../config/config';
 import { ErrorResponse } from '../types/errorResponse';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const errorMiddleware = (error: HttpException, req: Request, res: Response, _next: NextFunction) => {
     const statusCode = error.statusCode || 500;
-    let response: ErrorResponse = {
+    const response: ErrorResponse = {
         message: error.message,
         errorCode: error.errorCode || 'UNKNOWN_ERROR'
     };
@@ -14,7 +16,7 @@ export const errorMiddleware = (error: HttpException, req: Request, res: Respons
     }
 
     logger.error(`[${req.method}] ${req.url} - ${statusCode} - ${error.message}`);
-    if (process.env.NODE_ENV === 'development') {
+    if (config.env === 'development') {
         logger.debug(`Stack trace: ${error.stack}`);
     }
 
