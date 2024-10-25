@@ -1,0 +1,5 @@
+export enum ErrorCode {
+    UNAUTHORIZED = 1001,
+    BAD_REQUEST = 2001,
+    INTERNAL_EXCEPTION = 3001
+}
