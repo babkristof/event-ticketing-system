@@ -1,23 +1,22 @@
-import prismaClient from '../database/prismaClient';
-import { compare, genSalt, hashSync } from 'bcryptjs';
+import {getPrismaClient} from '../database/prismaClient';
 import * as jwt from 'jsonwebtoken';
 import config from '../config/config';
+import { hashPassword, comparePassword } from '../utils/password.util';
 import { BadRequestException } from '../exceptions/BadRequestException';
 import { NotFoundException } from '../exceptions/NotFoundException';
 import { ErrorCode } from '../exceptions/ErrorCode';
 import { AuthPayload, LoginResponse } from '../types/auth';
 import { User } from '@prisma/client';
-import { LoginInput, SignUpInput } from '../schemas/auth.schema';
+import { LoginData, SignUpData } from '../schemas/auth.schema';
 import { toPublicUser } from '../utils/user.util';
 
-export const signupService = async ({ name, email, password }: SignUpInput): Promise<User> => {
-  const existingUser = await prismaClient.user.findUnique({ where: { email } });
+export const signupService = async ({ name, email, password }: SignUpData): Promise<User> => {
+  const existingUser = await getPrismaClient().user.findUnique({ where: { email } });
   if (existingUser) {
     throw new BadRequestException('User already exists!', ErrorCode.USER_ALREADY_EXISTS);
   }
-  const salt = await genSalt(Number(config.saltRounds));
-  const hashedPassword = hashSync(password, salt);
-  return prismaClient.user.create({
+  const hashedPassword = await hashPassword(password);
+  return getPrismaClient().user.create({
     data: {
       name,
       email,
@@ -26,12 +25,12 @@ export const signupService = async ({ name, email, password }: SignUpInput): Pro
   });
 };
 
-export const loginService = async ({ email, password }: LoginInput): Promise<LoginResponse> => {
-  const user = await prismaClient.user.findUnique({ where: { email } });
+export const loginService = async ({ email, password }: LoginData): Promise<LoginResponse> => {
+  const user = await getPrismaClient().user.findUnique({ where: { email } });
   if (!user) {
     throw new NotFoundException('User does not exist!', ErrorCode.USER_NOT_FOUND);
   }
-  const passwordMatches = await compare(password, user.passwordHash);
+  const passwordMatches = await comparePassword(password, user.passwordHash);
   if (!passwordMatches) {
     throw new BadRequestException('Incorrect password', ErrorCode.INCORRECT_PASSWORD);
   }
@@ -44,7 +43,7 @@ export const loginService = async ({ email, password }: LoginInput): Promise<Log
 };
 
 export const getAuthenticatedUser = async (userId: number): Promise<User> => {
-  const user = await prismaClient.user.findUnique({ where: { id: userId } });
+  const user = await getPrismaClient().user.findUnique({ where: { id: userId } });
   if (!user) {
     throw new NotFoundException('User not found', ErrorCode.USER_NOT_FOUND);
   }
