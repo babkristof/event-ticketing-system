@@ -13,6 +13,9 @@
     "lint": "npx eslint .",
     "format": "npx prettier --write '**/*.{js,ts,json,md}'"
   },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "author": "Kristóf Bába",
   "license": "ISC",
   "nyc": {

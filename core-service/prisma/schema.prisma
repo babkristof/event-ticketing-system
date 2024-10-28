@@ -26,4 +26,34 @@ model User {
   role         Role     @default(CUSTOMER)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  bookings Booking[]
+  events   Event[]   @relation("CreatedEvents")
+}
+
+model Event {
+  id               Int      @id @default(autoincrement())
+  name             String
+  description      String
+  date             DateTime
+  venue            String
+  totalTickets     Int
+  availableTickets Int
+  createdBy        Int
+  createdByUser    User     @relation("CreatedEvents", fields: [createdBy], references: [id])
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  bookings Booking[]
+}
+
+model Booking {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+  eventId     Int
+  event       Event    @relation(fields: [eventId], references: [id])
+  ticketCount Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
