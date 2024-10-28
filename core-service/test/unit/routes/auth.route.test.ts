@@ -1,7 +1,7 @@
 import request from 'supertest';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import * as authController from '../../src/controllers/auth.controller';
+import * as authController from '../../../src/controllers/auth.controller';
 import { mockLoginResponse } from '../mocks/loginResponse.mock';
 const signupStub = sinon.stub(authController, 'signup').callsFake(async (_req, res) => {
     res.status(201).json({ message: 'User registered successfully' });
@@ -9,7 +9,7 @@ const signupStub = sinon.stub(authController, 'signup').callsFake(async (_req, r
 const loginStub = sinon.stub(authController, 'login').callsFake(async (_req, res) => {
     res.json(mockLoginResponse);
 });
-import app from '../../src/app';
+import app from '../../../src/app';
 
 describe('Auth Route Validations', () => {
     before(() => {
@@ -50,7 +50,6 @@ describe('Auth Route Validations', () => {
                 .post('/api/auth/signup')
                 .send(validSignupData);
 
-            console.log('signupStub.calledOnce ',signupStub.calledOnce);
             expect(signupStub.calledOnce).to.be.true;
             const calledWith = signupStub.getCall(0).args[0].body;
             expect(calledWith).to.deep.equal(validSignupData);

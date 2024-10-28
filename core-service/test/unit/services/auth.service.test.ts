@@ -1,13 +1,13 @@
 import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
-import * as passwordUtil from '../../src/utils/password.util';
-import * as userUtils from '../../src/utils/user.util';
-import {getAuthenticatedUser, loginService, signupService} from "../../src/services/auth.service";
+import * as passwordUtil from '../../../src/utils/password.util';
+import * as userUtils from '../../../src/utils/user.util';
+import {getAuthenticatedUser, loginService, signupService} from "../../../src/services/auth.service";
 import {Role} from "@prisma/client";
-import * as prisma from "../../src/database/prismaClient";
-import {BadRequestException} from "../../src/exceptions/BadRequestException";
-import {NotFoundException} from "../../src/exceptions/NotFoundException";
+import * as prisma from "../../../src/database/prismaClient";
+import {BadRequestException} from "../../../src/exceptions/BadRequestException";
+import {NotFoundException} from "../../../src/exceptions/NotFoundException";
 chai.use(chaiAsPromised);
 
 
@@ -51,10 +51,10 @@ describe('Auth Service', () => {
         });
 
         it('should throw BadRequestException if user already exists', async () => {
-            mockPrismaClient.user.findUnique.resolves(mockUser); // Simulate existing user
+            mockPrismaClient.user.findUnique.resolves(mockUser);
 
             await expect(
-                signupService({ name: 'John Doe', email: 'existing@example.com', password: 'password' })
+                signupService({ name: mockUser.name, email: mockUser.email, password: 'password' })
             ).to.be.rejectedWith(BadRequestException);
         });
 

@@ -4,9 +4,12 @@
   "description": "Core backend service for the Event Ticketing System, managing user registration, authentication, event creation, and ticket booking.",
   "main": "server.ts",
   "scripts": {
-    "test": "mocha -r ts-node/register test/**/*.ts",
-    "coverage": "nyc npm run test",
+    "test:unit": "mocha -r ts-node/register test/unit/**/*.test.ts",
+    "test:integration" : "mocha --file ./test/integration/utils/globalSetup.ts -r ts-node/register test/integration/**/*.test.ts",
+    "test:all": "npm run test:unit && npm run test:integration",
+    "coverage": "nyc npm run test:all",
     "start": "npx nodemon",
+    "migrate": "npx prisma migrate deploy",
     "lint": "npx eslint .",
     "format": "npx prettier --write '**/*.{js,ts,json,md}'"
   },
@@ -41,6 +44,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
+    "@testcontainers/postgresql": "^10.13.2",
     "@types/bcrypt": "^5.0.2",
     "@types/chai": "^5.0.0",
     "@types/chai-as-promised": "^8.0.1",
@@ -62,6 +66,7 @@
     "prettier": "^3.3.3",
     "sinon": "^19.0.2",
     "supertest": "^7.0.0",
+    "testcontainers": "^10.13.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.11.0"

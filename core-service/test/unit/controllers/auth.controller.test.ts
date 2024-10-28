@@ -1,12 +1,12 @@
 import chai, { expect } from 'chai';
 import sinon from 'sinon';
 import { Request, Response } from 'express';
-import * as authService from '../../src/services/auth.service';
-import { LoginResponse } from '../../src/types/auth';
+import * as authService from '../../../src/services/auth.service';
+import { LoginResponse } from '../../../src/types/auth';
 import chaiAsPromised from "chai-as-promised";
 chai.use(chaiAsPromised);
 
-import * as authController from '../../src/controllers/auth.controller';
+import * as authController from '../../../src/controllers/auth.controller';
 
 
 describe('Auth Controller', () => {
