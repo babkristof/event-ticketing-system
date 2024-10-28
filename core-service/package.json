@@ -5,7 +5,7 @@
   "main": "server.ts",
   "scripts": {
     "test:unit": "mocha -r ts-node/register test/unit/**/*.test.ts",
-    "test:integration" : "mocha --file ./test/integration/utils/globalSetup.ts -r ts-node/register test/integration/**/*.test.ts",
+    "test:integration": "mocha --file ./test/integration/utils/globalSetup.ts -r ts-node/register test/integration/**/*.test.ts",
     "test:all": "npm run test:unit && npm run test:integration",
     "coverage": "nyc npm run test:all",
     "start": "npx nodemon",

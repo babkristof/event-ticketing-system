@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { LoginData, SignUpData } from '../schemas/auth.schema';
 import { loginService, signupService } from '../services/auth.service';
-import {LoginResponse} from "../types/auth";
+import { LoginResponse } from '../types/auth';
 
 export const signup = async (req: Request<any, any, SignUpData>, res: Response) => {
   await signupService(req.body);

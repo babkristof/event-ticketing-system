@@ -1,4 +1,4 @@
-import {getPrismaClient} from '../database/prismaClient';
+import { getPrismaClient } from '../database/prismaClient';
 import * as jwt from 'jsonwebtoken';
 import config from '../config/config';
 import { hashPassword, comparePassword } from '../utils/password.util';
