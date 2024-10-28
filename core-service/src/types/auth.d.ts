@@ -1,6 +1,4 @@
-import { User } from '@prisma/client';
-
-export type PublicUser = Pick<User, 'id' | 'name' | 'email'>;
+import {PublicUser} from "./user";
 
 export interface AuthPayload {
   userId: number;

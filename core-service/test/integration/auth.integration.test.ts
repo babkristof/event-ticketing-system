@@ -31,6 +31,17 @@ describe('Auth Integration Tests', function () {
       expect(response.status).to.equal(201);
       expect(response.body).to.have.property('message', USER_REGISTERED_SUCCESS_MSG);
     });
+    it('should not allowed to register with case varian of existing email', async () => {
+      await seedTestUser();
+      const response = await request(app).post(SIGNUP_URL).send({
+        name: REGISTERED_USER.name,
+        email: REGISTERED_USER.email.toUpperCase(),
+        password: REGISTERED_USER.password
+      });
+
+      expect(response.status).to.equal(400);
+      expect(response.body).to.have.property('message', USER_EXISTS_MSG);
+    });
     it('should return 400 for registering an already existing email', async () => {
       await seedTestUser();
       const response = await request(app).post(SIGNUP_URL).send(REGISTERED_USER);
@@ -83,7 +94,17 @@ describe('Auth Integration Tests', function () {
       expect(response.body).to.have.property('token');
       expect(response.body.user.email).to.equal(REGISTERED_USER.email);
     });
+    it('should allow to login with case variant of existing email', async () => {
+      await seedTestUser();
+      const response = await request(app).post(LOGIN_URL).send({
+        email: REGISTERED_USER.email.toUpperCase(),
+        password: REGISTERED_USER.password
+      });
 
+      expect(response.status).to.equal(200);
+      expect(response.body).to.have.property('token');
+      expect(response.body.user.email).to.equal(REGISTERED_USER.email);
+    });
     it('should should not login with invalid password', async () => {
       await seedTestUser();
 

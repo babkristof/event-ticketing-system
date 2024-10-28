@@ -11,7 +11,8 @@ import { LoginData, SignUpData } from '../schemas/auth.schema';
 import { toPublicUser } from '../utils/user.util';
 
 export const signupService = async ({ name, email, password }: SignUpData): Promise<User> => {
-  const existingUser = await getPrismaClient().user.findUnique({ where: { email } });
+  const normalizedEmail = email.toLowerCase();
+  const existingUser = await getPrismaClient().user.findUnique({ where: { email: normalizedEmail } });
   if (existingUser) {
     throw new BadRequestException('User already exists!', ErrorCode.USER_ALREADY_EXISTS);
   }
@@ -26,7 +27,8 @@ export const signupService = async ({ name, email, password }: SignUpData): Prom
 };
 
 export const loginService = async ({ email, password }: LoginData): Promise<LoginResponse> => {
-  const user = await getPrismaClient().user.findUnique({ where: { email } });
+  const normalizedEmail = email.toLowerCase();
+  const user = await getPrismaClient().user.findUnique({ where: { email: normalizedEmail } });
   if (!user) {
     throw new NotFoundException('User does not exist!', ErrorCode.USER_NOT_FOUND);
   }
