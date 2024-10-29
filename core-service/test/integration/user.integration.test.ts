@@ -14,7 +14,7 @@ const REGISTERED_USER = {
 
 
 describe('/me Endpoint Integration Tests', function () {
-    const USER_ME_ENDPOINT = '/api/user/me';
+    const USER_ME_ENDPOINT = '/api/users/me';
     const UNAUTHORIZED_MSG = 'Unauthorized';
     let token: string;
 

@@ -3,7 +3,7 @@ import { ZodError, ZodSchema } from 'zod';
 import { BadRequestException } from '../exceptions/BadRequestException';
 import logger from '../config/logger';
 
-export const validateRequest = (schema: ZodSchema<unknown>) => {
+export const validateBody = (schema: ZodSchema<unknown>) => {
   return (req: Request, _res: Response, next: NextFunction) => {
     try {
       req.body = schema.parse(req.body);

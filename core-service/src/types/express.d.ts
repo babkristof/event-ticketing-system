@@ -7,6 +7,8 @@ declare module 'express-serve-static-core' {
     }
 }
 
-export interface AuthenticatedRequest extends Request {
+export interface AuthenticatedRequest<TBody = never, TParams = never> extends Request {
     user: PublicUser;
+    body: TBody;
+    params: TParams;
 }
