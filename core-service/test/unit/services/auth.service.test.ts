@@ -3,7 +3,7 @@ import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
 import * as passwordUtil from '../../../src/utils/password.util';
 import * as userUtils from '../../../src/utils/user.util';
-import { getAuthenticatedUser, loginService, signupService } from '../../../src/services/auth.service';
+import { getAuthenticatedUser, login, signup } from '../../../src/services/auth.service';
 import { Role } from '@prisma/client';
 import * as prisma from '../../../src/database/prismaClient';
 import { BadRequestException } from '../../../src/exceptions/BadRequestException';
@@ -42,7 +42,7 @@ describe('Auth Service', () => {
       mockPrismaClient.user.create.resolves(mockUser);
       sinon.stub(passwordUtil, 'hashPassword').resolves('hashedPassword');
 
-      const result = await signupService({ name: 'John Doe', email: 'john@example.com', password: 'password' });
+      const result = await signup({ name: 'John Doe', email: 'john@example.com', password: 'password' });
 
       expect(mockPrismaClient.user.findUnique.calledOnce).to.be.true;
       expect(mockPrismaClient.user.create.calledOnce).to.be.true;
@@ -53,29 +53,29 @@ describe('Auth Service', () => {
       mockPrismaClient.user.findUnique.resolves(mockUser);
 
       await expect(
-        signupService({ name: mockUser.name, email: mockUser.email, password: 'password' })
+        signup({ name: mockUser.name, email: mockUser.email, password: 'password' })
       ).to.be.rejectedWith(BadRequestException);
     });
   });
 
   describe('loginService', () => {
     beforeEach(() => {
-      sinon.stub(userUtils, 'toPublicUser').returns({ id: 1, name: 'John Doe', email: 'john@example.com' });
+      sinon.stub(userUtils, 'toPublicUser').returns({ id: 1, name: 'John Doe', email: 'john@example.com', role: 'CUSTOMER' });
     });
     it('should return a token and user data on successful login', async () => {
       mockPrismaClient.user.findUnique.resolves(mockUser);
       sinon.stub(passwordUtil, 'comparePassword').resolves(true);
 
-      const result = await loginService({ email: 'john@example.com', password: 'password' });
+      const result = await login({ email: 'john@example.com', password: 'password' });
 
       expect(result).to.have.property('token').that.is.a('string');
-      expect(result.user).to.deep.equal({ id: 1, name: 'John Doe', email: 'john@example.com' });
+      expect(result.user).to.deep.equal({ id: 1, name: 'John Doe', email: 'john@example.com', role: 'CUSTOMER' });
     });
 
     it('should throw NotFoundException if user does not exist', async () => {
       mockPrismaClient.user.findUnique.resolves(null);
 
-      await expect(loginService({ email: 'nonexistent@example.com', password: 'password' })).to.be.rejectedWith(
+      await expect(login({ email: 'nonexistent@example.com', password: 'password' })).to.be.rejectedWith(
         NotFoundException
       );
     });
@@ -84,7 +84,7 @@ describe('Auth Service', () => {
       mockPrismaClient.user.findUnique.resolves(mockUser);
       sinon.stub(passwordUtil, 'comparePassword').resolves(false);
 
-      await expect(loginService({ email: 'john@example.com', password: 'wrongpassword' })).to.be.rejectedWith(
+      await expect(login({ email: 'john@example.com', password: 'wrongpassword' })).to.be.rejectedWith(
         BadRequestException
       );
     });

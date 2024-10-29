@@ -10,7 +10,7 @@ import { User } from '@prisma/client';
 import { LoginData, SignUpData } from '../schemas/auth.schema';
 import { toPublicUser } from '../utils/user.util';
 
-export const signupService = async ({ name, email, password }: SignUpData): Promise<User> => {
+export const signup = async ({ name, email, password }: SignUpData): Promise<User> => {
   const normalizedEmail = email.toLowerCase();
   const existingUser = await getPrismaClient().user.findUnique({ where: { email: normalizedEmail } });
   if (existingUser) {
@@ -26,7 +26,7 @@ export const signupService = async ({ name, email, password }: SignUpData): Prom
   });
 };
 
-export const loginService = async ({ email, password }: LoginData): Promise<LoginResponse> => {
+export const login = async ({ email, password }: LoginData): Promise<LoginResponse> => {
   const normalizedEmail = email.toLowerCase();
   const user = await getPrismaClient().user.findUnique({ where: { email: normalizedEmail } });
   if (!user) {
