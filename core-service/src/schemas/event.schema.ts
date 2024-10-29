@@ -11,7 +11,10 @@ export const createEventSchema = z.object({
 });
 
 export const getEventSchema = z.object({
-    id: z.string().min(1, "Event id is required").max(10, "Event id too long").transform(Number),
+    id: z.preprocess(
+        (val) => (typeof val === "string" ? parseInt(val, 10) : val),
+        z.number().int().positive("Event ID must be a positive integer")
+    ),
 });
 
 

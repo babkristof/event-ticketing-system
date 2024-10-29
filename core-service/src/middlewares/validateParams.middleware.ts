@@ -6,9 +6,7 @@ import logger from '../config/logger';
 export const validateParams = (schema: ZodSchema) => {
   return (req: Request, _res: Response, next: NextFunction) => {
     try {
-      console.log('REQPARAMSS1', req.params);
       req.params = schema.parse(req.params);
-      console.log('REQPARAMSS22', req.params);
       next();
     } catch (error) {
       if (error instanceof ZodError) {
