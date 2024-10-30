@@ -5,10 +5,13 @@ import { Role } from '@prisma/client';
 import * as prisma from '../../../src/database/prismaClient';
 import { BadRequestException } from '../../../src/exceptions/BadRequestException';
 import { NotFoundException } from '../../../src/exceptions/NotFoundException';
+import logger from "../../../src/config/logger";
 
 describe('Auth Service', () => {
   let mockPrismaClient: any;
   let mockUser: any;
+  let loggerSpy: jest.SpyInstance;
+  let warnSpy: jest.SpyInstance;
 
   beforeEach(() => {
     mockUser = {
@@ -27,6 +30,8 @@ describe('Auth Service', () => {
       },
     };
     jest.spyOn(prisma, 'getPrismaClient').mockReturnValue(mockPrismaClient);
+    loggerSpy = jest.spyOn(logger, 'info');
+    warnSpy = jest.spyOn(logger, 'warn');
   });
 
   afterEach(() => {
@@ -43,6 +48,7 @@ describe('Auth Service', () => {
 
       expect(mockPrismaClient.user.findUnique).toHaveBeenCalledTimes(1);
       expect(mockPrismaClient.user.create).toHaveBeenCalledTimes(1);
+      expect(loggerSpy).toHaveBeenCalledWith(`New user registered with email: john@example.com`);
       expect(result).toEqual(mockUser);
     });
 
@@ -65,6 +71,7 @@ describe('Auth Service', () => {
 
       const result = await login({ email: 'john@example.com', password: 'password' });
 
+      expect(loggerSpy).toHaveBeenCalledWith(`User 1 logged in successfully`);
       expect(result).toHaveProperty('token', expect.any(String));
       expect(result.user).toEqual({ id: 1, name: 'John Doe', email: 'john@example.com', role: 'CUSTOMER' });
     });
@@ -82,6 +89,7 @@ describe('Auth Service', () => {
 
       await expect(login({ email: 'john@example.com', password: 'wrongpassword' }))
           .rejects.toThrow(BadRequestException);
+      expect(warnSpy).toHaveBeenCalledWith(`Failed login attempt for user john@example.com`);
     });
   });
 

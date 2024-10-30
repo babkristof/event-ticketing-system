@@ -10,7 +10,11 @@ const config = {
     secret: process.env.JWT_SECRET as string,
     expiresIn: process.env.JWT_EXPIRES_IN
   },
-  saltRounds: process.env.SALT_ROUNDS
+  saltRounds: process.env.SALT_ROUNDS,
+  redis: {
+    host: process.env.REDIS_HOST || '127.0.0.1',
+    port: parseInt(process.env.REDIS_PORT || '6379', 10)
+  }
 };
 
 if (!config.databaseUrl) {

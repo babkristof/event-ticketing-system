@@ -9,7 +9,7 @@ export const createBooking = async (req: AuthenticatedRequest<CreateBookingData,
     const eventId = parseInt(req.params.eventId, 10);
     const { ticketCount } = req.body;
 
-    const booking = await bookingService.create(eventId, req.user.id, ticketCount);
+    const booking = await bookingService.create(eventId, req.user, ticketCount);
     res.status(201).json(booking);
 };
 
@@ -25,6 +25,6 @@ export const cancelBooking = async (req: AuthenticatedRequest<{}, EventBookingPa
     const eventId = parseInt(req.params.eventId, 10);
     const bookingId = parseInt(req.params.bookingId, 10);
 
-    await bookingService.remove(eventId, bookingId);
+    await bookingService.remove(eventId, bookingId, req.user);
     res.status(204).send();
 };

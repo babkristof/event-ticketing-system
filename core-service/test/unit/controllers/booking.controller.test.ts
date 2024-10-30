@@ -53,7 +53,7 @@ describe('Booking Controller', () => {
                 mockResponse as Response
             );
 
-            expect(bookingService.create).toHaveBeenCalledWith(1, mockRequest.user!.id, mockRequest.body!.ticketCount);
+            expect(bookingService.create).toHaveBeenCalledWith(1, mockRequest.user, mockRequest.body!.ticketCount);
             expect(mockResponse.status).toHaveBeenCalledWith(201);
             expect(mockResponse.json).toHaveBeenCalledWith(mockBooking);
         });
@@ -91,7 +91,7 @@ describe('Booking Controller', () => {
                 mockResponse as Response
             );
 
-            expect(bookingService.remove).toHaveBeenCalledWith(1, 1);
+            expect(bookingService.remove).toHaveBeenCalledWith(1, 1, mockRequest.user);
             expect(mockResponse.status).toHaveBeenCalledWith(204);
             expect(mockResponse.send).toHaveBeenCalled();
         });

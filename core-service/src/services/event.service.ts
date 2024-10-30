@@ -6,7 +6,7 @@ import {ErrorCode} from "../exceptions/ErrorCode";
 import logger from "../config/logger";
 
 export const create = async (eventData: CreateEventData, userId: number): Promise<Event> => {
-    return getPrismaClient().event.create({
+    const newEvent = await getPrismaClient().event.create({
         data: {
             name: eventData.name,
             description: eventData.description,
@@ -17,6 +17,9 @@ export const create = async (eventData: CreateEventData, userId: number): Promis
             createdBy: userId,
         }
     });
+    logger.info(`Event created successfully with ID: ${newEvent.id}`);
+    return newEvent;
+
 };
 
 export const get = async (eventData: GetEventData): Promise<Event> => {
@@ -24,6 +27,7 @@ export const get = async (eventData: GetEventData): Promise<Event> => {
     if(!event) {
         throw new NotFoundException('Event not found', ErrorCode.EVENT_NOT_FOUND);
     }
+    logger.debug(`Fetched event with ID: ${eventData.eventId}`);
     return event;
 };
 
