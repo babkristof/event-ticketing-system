@@ -7,12 +7,15 @@ import { eventController} from "../controllers";
 import {validateBody} from "../middlewares/validateBody.middleware";
 import {createEventSchema, getEventSchema} from "../schemas/event.schema";
 import {validateParams} from "../middlewares/validateParams.middleware";
+import bookingRoutes from "./booking.route";
 
 
 const eventRoutes: Router = Router();
 
 eventRoutes.post('/', [authMiddleware, roleMiddleware(Role.ADMIN)], validateBody(createEventSchema), errorHandler(eventController.createEvent));
 eventRoutes.get('/', [authMiddleware, roleMiddleware(Role.ADMIN)], errorHandler(eventController.getEvents));
-eventRoutes.get('/:id', [authMiddleware, roleMiddleware(Role.ADMIN)], validateParams(getEventSchema), errorHandler(eventController.getEvent));
+eventRoutes.get('/:eventId', [authMiddleware, roleMiddleware(Role.ADMIN)], validateParams(getEventSchema), errorHandler(eventController.getEvent));
+
+eventRoutes.use('/:eventId/bookings', bookingRoutes);
 
 export default eventRoutes;

@@ -20,7 +20,7 @@ export const create = async (eventData: CreateEventData, userId: number): Promis
 };
 
 export const get = async (eventData: GetEventData): Promise<Event> => {
-    const event = await getPrismaClient().event.findUnique({where: {id: eventData.id}});
+    const event = await getPrismaClient().event.findUnique({where: {id: eventData.eventId}});
     if(!event) {
         throw new NotFoundException('Event not found', ErrorCode.EVENT_NOT_FOUND);
     }

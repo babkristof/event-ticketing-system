@@ -11,7 +11,7 @@ export const createEventSchema = z.object({
 });
 
 export const getEventSchema = z.object({
-    id: z.preprocess(
+    eventId: z.preprocess(
         (val) => (typeof val === "string" ? parseInt(val, 10) : val),
         z.number().int().positive("Event ID must be a positive integer")
     ),

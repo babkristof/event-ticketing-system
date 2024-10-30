@@ -58,17 +58,17 @@ describe('Event Service', () => {
     describe('get', () => {
         it('should return an event if found', async () => {
             mockPrismaClient.event.findUnique.mockResolvedValueOnce(mockEvent);
-            const eventData = { id: 1 };
+            const eventData = { eventId: 1 };
 
             const result = await eventService.get(eventData);
 
-            expect(mockPrismaClient.event.findUnique).toHaveBeenCalledWith({ where: { id: eventData.id } });
+            expect(mockPrismaClient.event.findUnique).toHaveBeenCalledWith({ where: { id: eventData.eventId } });
             expect(result).toEqual(mockEvent);
         });
 
         it('should throw NotFoundException if event is not found', async () => {
             mockPrismaClient.event.findUnique.mockResolvedValueOnce(null);
-            const eventData = { id: 999 };
+            const eventData = { eventId: 999 };
 
             await expect(eventService.get(eventData)).rejects.toThrow(NotFoundException);
         });

@@ -123,7 +123,7 @@ describe('Auth Integration Tests', () => {
         password: REGISTERED_USER.password
       });
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(404);
       expect(response.body).toHaveProperty('message', USER_NOT_EXISTS_MSG);
     });
     it('should should not login with invalid email', async () => {
