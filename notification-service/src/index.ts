@@ -1,6 +1,7 @@
 import emailWorker from './workers/email.worker';
+import logger from "./config/logger";
 
-console.log('Starting email worker...');
+logger.info('Starting email worker...');
 emailWorker.run().catch(err => {
-    console.error('Worker failed to start:', err);
+    logger.error('Worker failed to start:', err);
 });

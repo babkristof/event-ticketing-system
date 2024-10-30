@@ -7,6 +7,7 @@
     "test": "test"
   },
   "scripts": {
+    "start": "npx ts-node ./src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Kristóf Bába",
@@ -16,6 +17,8 @@
     "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
     "nodemailer": "^6.9.16",
+    "winston": "^3.15.0",
+    "winston-daily-rotate-file": "^5.0.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

@@ -1,6 +1,11 @@
-import { RedisOptions } from 'bullmq';
+import {RedisOptions} from 'bullmq';
 import * as dotenv from 'dotenv';
+import * as process from "node:process";
 dotenv.config();
+
+export const config = {
+    env: process.env.NODE_ENV || 'development',
+}
 
 export const redisConfig: RedisOptions = {
     host: process.env.REDIS_HOST,
