@@ -10,9 +10,8 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "skipLibCheck": true,
-    "baseUrl": "./",
     "typeRoots": ["src/types", "node_modules/@types"]
   },
-  "include": ["src", "test"],
+  "include": ["src/**/*", "prisma/seed.ts"],
   "exclude": ["node_modules"]
 }

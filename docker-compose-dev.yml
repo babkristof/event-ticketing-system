@@ -1,0 +1,62 @@
+version: '3.9'
+
+services:
+  core-service:
+    build:
+      context: ./core-service
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: "postgresql://postgres:postgres@pg_db:5432/event?schema=public"
+      REDIS_HOST: redis
+      EMAIL_HOST: mailhog
+      EMAIL_PORT: 1025
+      JWT_SECRET: mysecret
+    ports:
+      - "3000:3000"
+    depends_on:
+      - pg_db
+      - redis
+      - mailhog
+
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      REDIS_HOST: redis
+      EMAIL_HOST: mailhog
+      EMAIL_PORT: 1025
+    depends_on:
+      - redis
+      - mailhog
+
+  pg_db:
+    image: postgres:17.0
+    restart: unless-stopped
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: event
+    ports:
+      - "5432:5432"
+    volumes:
+      - type: tmpfs
+        target: /var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  mailhog:
+    image: mailhog/mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"

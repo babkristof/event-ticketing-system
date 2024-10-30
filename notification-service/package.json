@@ -8,6 +8,7 @@
   },
   "scripts": {
     "start": "npx ts-node ./src/index.ts",
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Kristóf Bába",

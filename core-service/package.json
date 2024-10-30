@@ -12,8 +12,11 @@
     "coverage:integration": "jest --runInBand --forceExit --colors -c jest.integration.config.ts",
     "coverage:summary-preset": "mkdir .nyc_output && cp coverage/unit/coverage-final.json .nyc_output/unit.json && cp coverage/integration/coverage-final.json .nyc_output/integration.json",
     "coverage:report": "nyc report --reporter html --reporter lcov --report-dir ./coverage/summary",
-    "start": "npx nodemon",
+    "start": "node dist/server.js",
+    "build": "tsc",
+    "dev": "npx nodemon",
     "migrate": "npx prisma migrate deploy",
+    "seed": "npx prisma db seed",
     "lint": "npx eslint .",
     "format": "npx prettier --write '**/*.{js,ts,json,md}'"
   },
