@@ -1,9 +1,8 @@
-import { getContainer, stopContainer } from './container.singleton';
+import { getContainer } from './container.singleton';
 import { getPrismaClient } from '../../../src/database/prismaClient';
 import { execSync } from 'node:child_process';
 
-before(async function () {
-  this.timeout(60000);
+export default async () => {
   const container = await getContainer();
   const dbHost = container.getHost();
   const dbPort = container.getMappedPort(5432);
@@ -13,9 +12,4 @@ before(async function () {
 
   await getPrismaClient().$connect();
   execSync('npx prisma migrate deploy', { stdio: 'inherit' });
-});
-
-after(async () => {
-  await getPrismaClient().$disconnect();
-  await stopContainer();
-});
+};

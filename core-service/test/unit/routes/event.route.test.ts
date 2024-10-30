@@ -1,42 +1,31 @@
 import request from 'supertest';
-import app from '../../../src/app';  // Ensure app is the last import to initialize stubs first
+import app from '../../../src/app';
 import * as eventController from '../../../src/controllers/event.controller';
-import * as authMiddleware from '../../../src/middlewares/auth.middleware';
-import * as roleMiddleware from '../../../src/middlewares/role.middleware';
 import { Role } from '@prisma/client';
 import {NextFunction, Request, Response} from "express";
 
-jest.mock('../../../src/middlewares/auth.middleware');
-jest.mock('../../../src/middlewares/role.middleware');
-jest.mock('../../../src/controllers/event.controller');
+jest.mock('../../../src/middlewares/auth.middleware', () => jest.fn((req, _res, next) => {
+    req.user = { id: 1, name: 'Admin', email: 'admin@example.com', role: Role.ADMIN };
+    next();
+}));
+
+jest.mock('../../../src/middlewares/role.middleware', () => jest.fn(() => (req: Request, _res: Response, next: NextFunction) => {
+    req.user = { id: 1, name: 'Admin', email: 'admin@example.com', role: Role.ADMIN };
+    next();
+}));
+
+jest.mock('../../../src/controllers/event.controller', () => ({
+    createEvent: jest.fn((_req, res) => res.status(201).json({ id: 1 })),
+    getEvent: jest.fn((_req, res) => res.status(200).json({ id: 1, name: 'Sample Event' })),
+    getEvents: jest.fn((_req, res) => res.status(200).json([{ id: 1, name: 'Sample Event' }])),
+}));
 
 describe('Event Route Validations', () => {
     beforeEach(() => {
-        (authMiddleware.default as jest.Mock).mockImplementation((req, _res, next) => {
-            req.user = { id: 1, name: 'Admin', email: 'admin@example.com', role: Role.ADMIN };
-            next();
-        });
-
-        (roleMiddleware.default as jest.Mock).mockImplementation((requiredRole: Role) => {
-            return (req: Request, _res: Response, next: NextFunction) => {
-                req.user = { id: 1, name: 'Admin', email: 'admin@example.com', role: requiredRole };
-                next();
-            };
-        });
-
-        (eventController.createEvent as jest.Mock).mockImplementation((_req, res) => {
-            res.status(201).json({ id: 1 });
-        });
-        (eventController.getEvent as jest.Mock).mockImplementation((_req, res) => {
-            res.status(200).json({ id: 1, name: 'Sample Event' });
-        });
-        (eventController.getEvents as jest.Mock).mockImplementation((_req, res) => {
-            res.status(200).json([{ id: 1, name: 'Sample Event' }]);
-        });
     });
 
     afterEach(() => {
-        jest.clearAllMocks(); // Reset all mocks after each test
+        jest.clearAllMocks();
     });
 
     describe('POST /api/events', () => {

@@ -1,33 +1,58 @@
 import request from 'supertest';
-import { expect } from 'chai';
-import sinon from 'sinon';
-import * as authController from '../../../src/controllers/auth.controller';
 import { mockLoginResponse } from '../mocks/loginResponse.mock';
-const signupStub = sinon.stub(authController, 'signup').callsFake(async (_req, res) => {
-  res.status(201).json({ message: 'User registered successfully' });
-});
-const loginStub = sinon.stub(authController, 'login').callsFake(async (_req, res) => {
-  res.json(mockLoginResponse);
-});
 import app from '../../../src/app';
+import * as authController from '../../../src/controllers/auth.controller';
+
+jest.mock("../../../src/controllers/auth.controller");
 
 describe('Auth Route Validations', () => {
-  before(() => {
-    signupStub.resetHistory();
+  let signupMock: any;
+  let loginMock: any;
+  beforeAll(() => {
+    signupMock = jest.spyOn(authController, 'signup').mockImplementation(async (_req, res) => {
+      res.status(201).json({ message: 'User registered successfully' });
+    });
+    loginMock = jest.spyOn(authController, 'login').mockImplementation(async (_req, res) => {
+      res.json(mockLoginResponse);
+    });
   });
 
   afterEach(() => {
-    sinon.restore();
-    sinon.resetHistory();
-  });
-  after(() => {
-    sinon.reset();
+    jest.clearAllMocks();
   });
 
   describe('POST /api/auth/signup', () => {
-    afterEach(() => {
-      signupStub.resetHistory();
+    const validSignupData = {
+      name: 'validname',
+      email: 'valid@email.com',
+      password: 'validpassword'
+    };
+
+    it('should successfully sign up with valid data', async () => {
+      const response = await request(app).post('/api/auth/signup').send(validSignupData);
+
+      expect(signupMock).toHaveBeenCalledTimes(1);
+      expect(signupMock.mock.calls[0][0].body).toEqual(validSignupData);
+      expect(response.status).toBe(201);
+      expect(response.body).toEqual({ message: 'User registered successfully' });
     });
+
+    it('should remove leading and trailing spaces from name, email, and password', async () => {
+      const response = await request(app).post('/api/auth/signup').send({
+        name: '   namewithspaces   ',
+        email: '   email@example.com   ',
+        password: '   passwordwithspaces   '
+      });
+
+      expect(signupMock).toHaveBeenCalledTimes(1);
+      expect(signupMock.mock.calls[0][0].body).toEqual({
+        name: 'namewithspaces',
+        email: 'email@example.com',
+        password: 'passwordwithspaces'
+      });
+      expect(response.status).toBe(201);
+    });
+
     const invalidSignupData = [
       { desc: 'missing name', data: { email: 'john@example.com', password: 'password' } },
       { desc: 'missing password', data: { name: 'JohnDoe', email: 'john@example.com' } },
@@ -40,50 +65,46 @@ describe('Auth Route Validations', () => {
       { desc: 'empty password', data: { name: 'JohnDoe', email: 'john@example.com', password: '' } },
       { desc: 'password with spaces', data: { name: 'JohnDoe', email: 'john@example.com', password: '  m   ' } }
     ];
-    it('should successfully sign up with valid data', async () => {
-      const validSignupData = {
-        name: 'validname',
-        email: 'valid@email.com',
-        password: 'validpassword'
-      };
-      const response = await request(app).post('/api/auth/signup').send(validSignupData);
-
-      expect(signupStub.calledOnce).to.be.true;
-      const calledWith = signupStub.getCall(0).args[0].body;
-      expect(calledWith).to.deep.equal(validSignupData);
-      expect(response.status).to.equal(201);
-    });
-
-    it('should remove leading and trailing spaces from name, email, and password in /signup', async () => {
-      const response = await request(app).post('/api/auth/signup').send({
-        name: '   namewithspaces   ',
-        email: '   email@example.com   ',
-        password: '   passwordwithspaces   '
-      });
-
-      expect(signupStub.calledOnce).to.be.true;
-      const calledWith = signupStub.getCall(0).args[0].body;
-      expect(calledWith).to.deep.equal({
-        name: 'namewithspaces',
-        email: 'email@example.com',
-        password: 'passwordwithspaces'
-      });
-      expect(response.status).to.equal(201);
-    });
 
     invalidSignupData.forEach(({ desc, data }) => {
       it(`should return 400 if request body is ${desc}`, async () => {
         const response = await request(app).post('/api/auth/signup').send(data);
 
-        expect(response.status).to.equal(400);
-        expect(response.body.message).to.equal('Request validation failed');
+        expect(response.status).toBe(400);
+        expect(response.body.message).toBe('Request validation failed');
       });
     });
   });
+
   describe('POST /api/auth/login', () => {
-    afterEach(() => {
-      loginStub.resetHistory();
+    const validLoginData = {
+      email: 'email@example.com',
+      password: 'passwordwithspaces'
+    };
+
+    it('should successfully login with valid data', async () => {
+      const response = await request(app).post('/api/auth/login').send(validLoginData);
+
+      expect(loginMock).toHaveBeenCalledTimes(1);
+      expect(loginMock.mock.calls[0][0].body).toEqual(validLoginData);
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual(mockLoginResponse);
     });
+
+    it('should remove leading and trailing spaces from email and password', async () => {
+      const response = await request(app).post('/api/auth/login').send({
+        email: '   email@example.com   ',
+        password: '   passwordwithspaces   '
+      });
+
+      expect(loginMock).toHaveBeenCalledTimes(1);
+      expect(loginMock.mock.calls[0][0].body).toEqual({
+        email: 'email@example.com',
+        password: 'passwordwithspaces'
+      });
+      expect(response.status).toBe(200);
+    });
+
     const invalidLoginData = [
       { desc: 'missing email', data: { password: 'password' } },
       { desc: 'missing password', data: { email: 'john@example.com' } },
@@ -92,40 +113,13 @@ describe('Auth Route Validations', () => {
       { desc: 'empty password', data: { email: 'john@example.com', password: '' } },
       { desc: 'password with spaces', data: { email: 'john@example.com', password: '   m    ' } }
     ];
-    it('should successfully login with valid data', async () => {
-      const validLoginData = {
-        email: 'email@example.com',
-        password: 'passwordwithspaces'
-      };
-      const response = await request(app).post('/api/auth/login').send(validLoginData);
-
-      expect(loginStub.calledOnce).to.be.true;
-      const calledWith = loginStub.getCall(0).args[0].body;
-      expect(calledWith).to.deep.equal(validLoginData);
-      expect(response.status).to.equal(200);
-    });
-
-    it('should remove leading and trailing spaces from email and password in /login', async () => {
-      const response = await request(app).post('/api/auth/login').send({
-        email: '   email@example.com   ',
-        password: '   passwordwithspaces   '
-      });
-
-      expect(loginStub.calledOnce).to.be.true;
-      const calledWith = loginStub.getCall(0).args[0].body;
-      expect(calledWith).to.deep.equal({
-        email: 'email@example.com',
-        password: 'passwordwithspaces'
-      });
-      expect(response.status).to.equal(200);
-    });
 
     invalidLoginData.forEach(({ desc, data }) => {
       it(`should return 400 if login request body is ${desc}`, async () => {
         const response = await request(app).post('/api/auth/login').send(data);
 
-        expect(response.status).to.equal(400);
-        expect(response.body.message).to.equal('Request validation failed');
+        expect(response.status).toBe(400);
+        expect(response.body.message).toBe('Request validation failed');
       });
     });
   });

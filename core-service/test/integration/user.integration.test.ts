@@ -13,7 +13,7 @@ const REGISTERED_USER = {
 };
 
 
-describe('/me Endpoint Integration Tests', function () {
+describe('/me Endpoint Integration Tests', () => {
     const USER_ME_ENDPOINT = '/api/users/me';
     const UNAUTHORIZED_MSG = 'Unauthorized';
     let token: string;

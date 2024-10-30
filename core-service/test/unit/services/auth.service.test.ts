@@ -1,6 +1,3 @@
-import chai, { expect } from 'chai';
-import chaiAsPromised from 'chai-as-promised';
-import sinon from 'sinon';
 import * as passwordUtil from '../../../src/utils/password.util';
 import * as userUtils from '../../../src/utils/user.util';
 import { getAuthenticatedUser, login, signup } from '../../../src/services/auth.service';
@@ -8,7 +5,6 @@ import { Role } from '@prisma/client';
 import * as prisma from '../../../src/database/prismaClient';
 import { BadRequestException } from '../../../src/exceptions/BadRequestException';
 import { NotFoundException } from '../../../src/exceptions/NotFoundException';
-chai.use(chaiAsPromised);
 
 describe('Auth Service', () => {
   let mockPrismaClient: any;
@@ -22,86 +18,85 @@ describe('Auth Service', () => {
       passwordHash: 'hashedPassword',
       role: Role.CUSTOMER,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
     mockPrismaClient = {
       user: {
-        findUnique: sinon.stub().resolves(null), // Default to no user found
-        create: sinon.stub()
-      }
+        findUnique: jest.fn().mockResolvedValue(null),
+        create: jest.fn(),
+      },
     };
-    sinon.stub(prisma, 'getPrismaClient').returns(mockPrismaClient);
+    jest.spyOn(prisma, 'getPrismaClient').mockReturnValue(mockPrismaClient);
   });
+
   afterEach(() => {
-    sinon.restore();
+    jest.clearAllMocks();
   });
 
   describe('signupService', () => {
     it('should create a new user with hashed password', async () => {
-      mockPrismaClient.user.findUnique.resolves(null);
-      mockPrismaClient.user.create.resolves(mockUser);
-      sinon.stub(passwordUtil, 'hashPassword').resolves('hashedPassword');
+      mockPrismaClient.user.findUnique.mockResolvedValueOnce(null);
+      mockPrismaClient.user.create.mockResolvedValueOnce(mockUser);
+      jest.spyOn(passwordUtil, 'hashPassword').mockResolvedValueOnce('hashedPassword');
 
       const result = await signup({ name: 'John Doe', email: 'john@example.com', password: 'password' });
 
-      expect(mockPrismaClient.user.findUnique.calledOnce).to.be.true;
-      expect(mockPrismaClient.user.create.calledOnce).to.be.true;
-      expect(result).to.deep.equal(mockUser);
+      expect(mockPrismaClient.user.findUnique).toHaveBeenCalledTimes(1);
+      expect(mockPrismaClient.user.create).toHaveBeenCalledTimes(1);
+      expect(result).toEqual(mockUser);
     });
 
     it('should throw BadRequestException if user already exists', async () => {
-      mockPrismaClient.user.findUnique.resolves(mockUser);
+      mockPrismaClient.user.findUnique.mockResolvedValueOnce(mockUser);
 
-      await expect(
-        signup({ name: mockUser.name, email: mockUser.email, password: 'password' })
-      ).to.be.rejectedWith(BadRequestException);
+      await expect(signup({ name: mockUser.name, email: mockUser.email, password: 'password' }))
+          .rejects.toThrow(BadRequestException);
     });
   });
 
   describe('loginService', () => {
     beforeEach(() => {
-      sinon.stub(userUtils, 'toPublicUser').returns({ id: 1, name: 'John Doe', email: 'john@example.com', role: 'CUSTOMER' });
+      jest.spyOn(userUtils, 'toPublicUser').mockReturnValue({ id: 1, name: 'John Doe', email: 'john@example.com', role: 'CUSTOMER' });
     });
+
     it('should return a token and user data on successful login', async () => {
-      mockPrismaClient.user.findUnique.resolves(mockUser);
-      sinon.stub(passwordUtil, 'comparePassword').resolves(true);
+      mockPrismaClient.user.findUnique.mockResolvedValueOnce(mockUser);
+      jest.spyOn(passwordUtil, 'comparePassword').mockResolvedValueOnce(true);
 
       const result = await login({ email: 'john@example.com', password: 'password' });
 
-      expect(result).to.have.property('token').that.is.a('string');
-      expect(result.user).to.deep.equal({ id: 1, name: 'John Doe', email: 'john@example.com', role: 'CUSTOMER' });
+      expect(result).toHaveProperty('token', expect.any(String));
+      expect(result.user).toEqual({ id: 1, name: 'John Doe', email: 'john@example.com', role: 'CUSTOMER' });
     });
 
     it('should throw NotFoundException if user does not exist', async () => {
-      mockPrismaClient.user.findUnique.resolves(null);
+      mockPrismaClient.user.findUnique.mockResolvedValueOnce(null);
 
-      await expect(login({ email: 'nonexistent@example.com', password: 'password' })).to.be.rejectedWith(
-        NotFoundException
-      );
+      await expect(login({ email: 'nonexistent@example.com', password: 'password' }))
+          .rejects.toThrow(NotFoundException);
     });
 
     it('should throw BadRequestException if password is incorrect', async () => {
-      mockPrismaClient.user.findUnique.resolves(mockUser);
-      sinon.stub(passwordUtil, 'comparePassword').resolves(false);
+      mockPrismaClient.user.findUnique.mockResolvedValueOnce(mockUser);
+      jest.spyOn(passwordUtil, 'comparePassword').mockResolvedValueOnce(false);
 
-      await expect(login({ email: 'john@example.com', password: 'wrongpassword' })).to.be.rejectedWith(
-        BadRequestException
-      );
+      await expect(login({ email: 'john@example.com', password: 'wrongpassword' }))
+          .rejects.toThrow(BadRequestException);
     });
   });
 
   describe('getAuthenticatedUser', () => {
     it('should return the user if found', async () => {
-      mockPrismaClient.user.findUnique.resolves(mockUser);
+      mockPrismaClient.user.findUnique.mockResolvedValueOnce(mockUser);
 
       const result = await getAuthenticatedUser(1);
-      expect(result).to.deep.equal(mockUser);
+      expect(result).toEqual(mockUser);
     });
 
     it('should throw NotFoundException if user is not found', async () => {
-      mockPrismaClient.user.findUnique.resolves(null);
+      mockPrismaClient.user.findUnique.mockResolvedValueOnce(null);
 
-      await expect(getAuthenticatedUser(999)).to.be.rejectedWith(NotFoundException);
+      await expect(getAuthenticatedUser(999)).rejects.toThrow(NotFoundException);
     });
   });
 });

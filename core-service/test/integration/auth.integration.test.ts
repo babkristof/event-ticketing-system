@@ -10,7 +10,7 @@ const REGISTERED_USER = {
   password: 'hashedpassword'
 };
 
-describe('Auth Integration Tests', function () {
+describe('Auth Integration Tests', () => {
   const SIGNUP_URL = '/api/auth/signup';
   const LOGIN_URL = '/api/auth/login';
   const USER_REGISTERED_SUCCESS_MSG = 'User registered successfully';
@@ -20,7 +20,7 @@ describe('Auth Integration Tests', function () {
   const USER_NOT_EXISTS_MSG = 'User does not exist!';
 
   afterEach(resetDb);
-  after(async () => {
+  afterAll(async () => {
     await resetDb();
   });
 
@@ -31,24 +31,30 @@ describe('Auth Integration Tests', function () {
       expect(response.status).to.equal(201);
       expect(response.body).to.have.property('message', USER_REGISTERED_SUCCESS_MSG);
     });
-    it('should not allowed to register with case varian of existing email', async () => {
-      await seedTestUser();
-      const response = await request(app).post(SIGNUP_URL).send({
-        name: REGISTERED_USER.name,
-        email: REGISTERED_USER.email.toUpperCase(),
-        password: REGISTERED_USER.password
-      });
+    it(
+      'should not allowed to register with case varian of existing email',
+      async () => {
+        await seedTestUser();
+        const response = await request(app).post(SIGNUP_URL).send({
+          name: REGISTERED_USER.name,
+          email: REGISTERED_USER.email.toUpperCase(),
+          password: REGISTERED_USER.password
+        });
 
-      expect(response.status).to.equal(400);
-      expect(response.body).to.have.property('message', USER_EXISTS_MSG);
-    });
-    it('should return 400 for registering an already existing email', async () => {
-      await seedTestUser();
-      const response = await request(app).post(SIGNUP_URL).send(REGISTERED_USER);
+        expect(response.status).to.equal(400);
+        expect(response.body).to.have.property('message', USER_EXISTS_MSG);
+      }
+    );
+    it(
+      'should return 400 for registering an already existing email',
+      async () => {
+        await seedTestUser();
+        const response = await request(app).post(SIGNUP_URL).send(REGISTERED_USER);
 
-      expect(response.status).to.equal(400);
-      expect(response.body).to.have.property('message', USER_EXISTS_MSG);
-    });
+        expect(response.status).to.equal(400);
+        expect(response.body).to.have.property('message', USER_EXISTS_MSG);
+      }
+    );
     it('should return 400 for invalid name', async () => {
       const response = await request(app).post(SIGNUP_URL).send({
         name: 1234,
