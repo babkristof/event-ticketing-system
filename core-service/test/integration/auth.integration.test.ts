@@ -1,14 +1,6 @@
-import { expect } from 'chai';
 import request from 'supertest';
 import app from '../../src/app';
-import { getPrismaClient } from '../../src/database/prismaClient';
-import { hashPassword } from '../../src/utils/password.util';
-
-const REGISTERED_USER = {
-  name: 'registeredUser',
-  email: 'registered@example.com',
-  password: 'hashedpassword'
-};
+import {seedTestUser, resetDb, REGISTERED_USER} from "./utils/dbSeeder";
 
 describe('Auth Integration Tests', () => {
   const SIGNUP_URL = '/api/auth/signup';
@@ -28,8 +20,8 @@ describe('Auth Integration Tests', () => {
     it('should successfully sign up a user', async () => {
       const response = await request(app).post(SIGNUP_URL).send(REGISTERED_USER);
 
-      expect(response.status).to.equal(201);
-      expect(response.body).to.have.property('message', USER_REGISTERED_SUCCESS_MSG);
+      expect(response.status).toBe(201);
+      expect(response.body).toHaveProperty('message', USER_REGISTERED_SUCCESS_MSG);
     });
     it(
       'should not allowed to register with case varian of existing email',
@@ -41,8 +33,8 @@ describe('Auth Integration Tests', () => {
           password: REGISTERED_USER.password
         });
 
-        expect(response.status).to.equal(400);
-        expect(response.body).to.have.property('message', USER_EXISTS_MSG);
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty('message', USER_EXISTS_MSG);
       }
     );
     it(
@@ -51,8 +43,8 @@ describe('Auth Integration Tests', () => {
         await seedTestUser();
         const response = await request(app).post(SIGNUP_URL).send(REGISTERED_USER);
 
-        expect(response.status).to.equal(400);
-        expect(response.body).to.have.property('message', USER_EXISTS_MSG);
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty('message', USER_EXISTS_MSG);
       }
     );
     it('should return 400 for invalid name', async () => {
@@ -62,8 +54,8 @@ describe('Auth Integration Tests', () => {
         password: 'validpassword'
       });
 
-      expect(response.status).to.equal(400);
-      expect(response.body).to.have.property('message', VALIDATION_FAILED_MSG);
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('message', VALIDATION_FAILED_MSG);
     });
     it('should return 400 for invalid email', async () => {
       const response = await request(app).post(SIGNUP_URL).send({
@@ -72,8 +64,8 @@ describe('Auth Integration Tests', () => {
         password: 'validpassword'
       });
 
-      expect(response.status).to.equal(400);
-      expect(response.body).to.have.property('message', VALIDATION_FAILED_MSG);
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('message', VALIDATION_FAILED_MSG);
     });
     it('should return 400 for invalid email', async () => {
       const response = await request(app).post(SIGNUP_URL).send({
@@ -82,8 +74,8 @@ describe('Auth Integration Tests', () => {
         password: 'inv'
       });
 
-      expect(response.status).to.equal(400);
-      expect(response.body).to.have.property('message', VALIDATION_FAILED_MSG);
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('message', VALIDATION_FAILED_MSG);
     });
   });
 
@@ -96,9 +88,9 @@ describe('Auth Integration Tests', () => {
         password: REGISTERED_USER.password
       });
 
-      expect(response.status).to.equal(200);
-      expect(response.body).to.have.property('token');
-      expect(response.body.user.email).to.equal(REGISTERED_USER.email);
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('token');
+      expect(response.body.user.email).toBe(REGISTERED_USER.email);
     });
     it('should allow to login with case variant of existing email', async () => {
       await seedTestUser();
@@ -107,9 +99,9 @@ describe('Auth Integration Tests', () => {
         password: REGISTERED_USER.password
       });
 
-      expect(response.status).to.equal(200);
-      expect(response.body).to.have.property('token');
-      expect(response.body.user.email).to.equal(REGISTERED_USER.email);
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('token');
+      expect(response.body.user.email).toBe(REGISTERED_USER.email);
     });
     it('should should not login with invalid password', async () => {
       await seedTestUser();
@@ -119,8 +111,8 @@ describe('Auth Integration Tests', () => {
         password: 'invalidPassword'
       });
 
-      expect(response.status).to.equal(400);
-      expect(response.body).to.have.property('message', INVALID_PASSWORD_MSG);
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('message', INVALID_PASSWORD_MSG);
     });
 
     it('should should not login with non existing email', async () => {
@@ -131,8 +123,8 @@ describe('Auth Integration Tests', () => {
         password: REGISTERED_USER.password
       });
 
-      expect(response.status).to.equal(400);
-      expect(response.body).to.have.property('message', USER_NOT_EXISTS_MSG);
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('message', USER_NOT_EXISTS_MSG);
     });
     it('should should not login with invalid email', async () => {
       await seedTestUser();
@@ -142,22 +134,8 @@ describe('Auth Integration Tests', () => {
         password: REGISTERED_USER.password
       });
 
-      expect(response.status).to.equal(400);
-      expect(response.body).to.have.property('message', VALIDATION_FAILED_MSG);
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('message', VALIDATION_FAILED_MSG);
     });
   });
 });
-
-async function seedTestUser() {
-  await getPrismaClient().user.create({
-    data: {
-      name: REGISTERED_USER.name,
-      email: REGISTERED_USER.email,
-      passwordHash: await hashPassword(REGISTERED_USER.password)
-    }
-  });
-}
-
-async function resetDb() {
-  await getPrismaClient().$transaction([getPrismaClient().user.deleteMany()]);
-}

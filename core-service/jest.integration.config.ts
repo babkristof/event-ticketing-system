@@ -5,7 +5,9 @@ const config: Config.InitialOptions = {
     testEnvironment: 'node',
     testMatch: ['**/test/integration/**/*.test.ts'],
     globalSetup: '<rootDir>/test/integration/utils/globalSetup.ts',
-    globalTeardown: '<rootDir>/test/integration/utils/globalTeardown.ts'
+    globalTeardown: '<rootDir>/test/integration/utils/globalTeardown.ts',
+    collectCoverage: true,
+    coverageDirectory: 'coverage/integration'
 };
 
 export default config;

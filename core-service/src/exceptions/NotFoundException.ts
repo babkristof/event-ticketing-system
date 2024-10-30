@@ -3,6 +3,6 @@ import { ErrorCode } from './ErrorCode';
 
 export class NotFoundException extends HttpException {
   constructor(message: string, errorCode: ErrorCode = ErrorCode.NOT_FOUND) {
-    super(message, errorCode, 400);
+    super(message, errorCode, 404);
   }
 }

@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import request from 'supertest';
 import app from '../../src/app';
 import jwt from 'jsonwebtoken';
@@ -34,15 +33,15 @@ describe('/me Endpoint Integration Tests', () => {
             .get(USER_ME_ENDPOINT)
             .set('Authorization', `Bearer ${token}`);
 
-        expect(response.status).to.equal(200);
-        expect(response.body).to.have.property('email', REGISTERED_USER.email);
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty('email', REGISTERED_USER.email);
     });
 
     it('should return 401 if token is missing', async () => {
         const response = await request(app).get(USER_ME_ENDPOINT);
 
-        expect(response.status).to.equal(401);
-        expect(response.body).to.have.property('message', UNAUTHORIZED_MSG);
+        expect(response.status).toBe(401);
+        expect(response.body).toHaveProperty('message', UNAUTHORIZED_MSG);
     });
 
     it('should return 401 if token is invalid', async () => {
@@ -50,8 +49,8 @@ describe('/me Endpoint Integration Tests', () => {
             .get(USER_ME_ENDPOINT)
             .set('Authorization', 'Bearer invalidToken');
 
-        expect(response.status).to.equal(401);
-        expect(response.body).to.have.property('message', UNAUTHORIZED_MSG);
+        expect(response.status).toBe(401);
+        expect(response.body).toHaveProperty('message', UNAUTHORIZED_MSG);
     });
 });
 
