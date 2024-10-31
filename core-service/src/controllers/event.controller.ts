@@ -19,3 +19,8 @@ export const getEvents = async (_req: AuthenticatedRequest, res: Response) => {
     const events:Event[] = await eventService.getAll();
     res.status(200).json(events);
 };
+
+export const deleteEvent = async (req: AuthenticatedRequest<GetEventData>, res: Response) => {
+    await eventService.remove(req.params);
+    res.status(204).send();
+};

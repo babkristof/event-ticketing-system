@@ -8,7 +8,7 @@ import {PublicUser} from "../../../src/types/user";
 import {addEmailJob} from "../../../src/queues/email.queue";
 
 jest.mock('../../../src/queues/email.queue', () => ({
-    addEmailJob: jest.fn(() => Promise.resolve()), // Ensure addEmailJob returns a promise
+    addEmailJob: jest.fn(() => Promise.resolve()),
 }));
 
 describe('Booking Service', () => {

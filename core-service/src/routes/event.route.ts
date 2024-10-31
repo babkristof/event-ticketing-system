@@ -15,6 +15,7 @@ const eventRoutes: Router = Router();
 eventRoutes.post('/', [authMiddleware, roleMiddleware(Role.ADMIN)], validateBody(createEventSchema), errorHandler(eventController.createEvent));
 eventRoutes.get('/', [authMiddleware, roleMiddleware(Role.ADMIN)], errorHandler(eventController.getEvents));
 eventRoutes.get('/:eventId', [authMiddleware, roleMiddleware(Role.ADMIN)], validateParams(getEventSchema), errorHandler(eventController.getEvent));
+eventRoutes.delete('/:eventId', [authMiddleware, roleMiddleware(Role.ADMIN)], validateParams(getEventSchema), errorHandler(eventController.deleteEvent));
 
 eventRoutes.use('/:eventId/bookings', bookingRoutes);
 

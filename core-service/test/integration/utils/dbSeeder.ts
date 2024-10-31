@@ -24,6 +24,14 @@ export const SAMPLE_EVENT = {
     totalTickets: 100,
 };
 
+export const PAST_EVENT = {
+    name: 'Sample Event',
+    description: 'A description for the sample event.',
+    date: new Date('2022-11-16T14:15:00.000Z'),
+    venue: 'Sample Venue',
+    totalTickets: 100,
+};
+
 export async function seedTestUser(): Promise<number> {
     const user = await getPrismaClient().user.create({
         data: {
@@ -48,10 +56,10 @@ export async function seedAdminUser(): Promise<number> {
     return admin.id;
 }
 
-export async function seedEvent(createdByUserId: number): Promise<number> {
+export async function seedEvent(createdByUserId: number, eventData: typeof SAMPLE_EVENT = SAMPLE_EVENT): Promise<number> {
     const event = await getPrismaClient().event.create({
         data: {
-            ...SAMPLE_EVENT,
+            ...eventData,
             availableTickets: SAMPLE_EVENT.totalTickets,
             createdBy: createdByUserId,
         },

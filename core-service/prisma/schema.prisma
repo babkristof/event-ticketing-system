@@ -52,7 +52,7 @@ model Booking {
   userId      Int
   user        User     @relation(fields: [userId], references: [id])
   eventId     Int
-  event       Event    @relation(fields: [eventId], references: [id])
+  event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
   ticketCount Int
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

@@ -2,7 +2,7 @@ import request from 'supertest';
 import app from '../../src/app';
 import jwt from 'jsonwebtoken';
 import config from '../../src/config/config';
-import {seedAdminUser, seedEvent, resetDb, SAMPLE_EVENT, seedTestUser} from './utils/dbSeeder';
+import {seedAdminUser, seedEvent, resetDb, SAMPLE_EVENT, seedTestUser, PAST_EVENT} from './utils/dbSeeder';
 
 
 describe('Event Routes Integration Tests', () => {
@@ -125,4 +125,57 @@ describe('Event Routes Integration Tests', () => {
             expect(response.body.message).toBe('Unauthorized');
         });
     });
+
+    describe('DELETE /api/events/:id', () => {
+        it('should successfully delete an event when requested by an admin', async () => {
+            const eventId = await seedEvent(adminUserId);
+
+            const response = await request(app)
+                .delete(`/api/events/${eventId}`)
+                .set('Authorization', `Bearer ${token}`);
+
+            expect(response.status).toBe(204);
+
+            // Verify the event no longer exists
+            const getResponse = await request(app)
+                .get(`/api/events/${eventId}`)
+                .set('Authorization', `Bearer ${token}`);
+            expect(getResponse.status).toBe(404);
+            expect(getResponse.body.message).toBe('Event not found');
+        });
+
+        it('should return 401 if a user with CUSTOMER role tries to delete an event', async () => {
+            const eventId = await seedEvent(adminUserId);
+
+            const response = await request(app)
+                .delete(`/api/events/${eventId}`)
+                .set('Authorization', `Bearer ${userToken}`);
+
+            expect(response.status).toBe(401); // Unauthorized
+            expect(response.body.message).toBe('Unauthorized');
+        });
+
+        it('should return 404 if the event does not exist', async () => {
+            const nonExistentEventId = 99;
+
+            const response = await request(app)
+                .delete(`/api/events/${nonExistentEventId}`)
+                .set('Authorization', `Bearer ${token}`);
+
+            expect(response.status).toBe(404); // Not found
+            expect(response.body.message).toBe('Event not found');
+        });
+
+        it('should return 409 if attempting to delete a past event', async () => {
+            const pastEventId = await seedEvent(adminUserId, PAST_EVENT);
+
+            const response = await request(app)
+                .delete(`/api/events/${pastEventId}`)
+                .set('Authorization', `Bearer ${token}`);
+
+            expect(response.status).toBe(409); // Conflict for past event
+            expect(response.body.message).toBe('Cannot delete past events.');
+        });
+    });
+
 });
