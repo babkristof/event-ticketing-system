@@ -28,6 +28,8 @@ const getEmailSubject = (emailType: string): string => {
             return 'Your Booking is Confirmed';
         case 'booking_deleted_successful':
             return 'Booking Cancellation Confirmed';
+        case 'event_deleted_by_admin':
+            return 'Event deleted';
         default:
             return 'Notification';
     }
