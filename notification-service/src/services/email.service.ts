@@ -30,6 +30,8 @@ const getEmailSubject = (emailType: string): string => {
             return 'Booking Cancellation Confirmed';
         case 'event_deleted_by_admin':
             return 'Event deleted';
+        case 'event_updated_by_admin':
+            return 'Event Details Updated';
         default:
             return 'Notification';
     }

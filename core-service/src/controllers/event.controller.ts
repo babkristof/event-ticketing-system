@@ -1,8 +1,9 @@
 import {Response} from 'express';
 import {AuthenticatedRequest} from "../types/express";
 import {eventService} from "../services";
-import {CreateEventData, GetEventData} from "../schemas/event.schema";
+import {CreateEventData, GetEventData, UpdateEventData} from "../schemas/event.schema";
 import {Event} from "@prisma/client";
+import {UpdateEventParams} from "../types/event";
 
 
 export const createEvent = async (req: AuthenticatedRequest<CreateEventData>, res: Response) => {
@@ -23,4 +24,9 @@ export const getEvents = async (_req: AuthenticatedRequest, res: Response) => {
 export const deleteEvent = async (req: AuthenticatedRequest<GetEventData>, res: Response) => {
     await eventService.remove(req.params);
     res.status(204).send();
+};
+
+export const updateEvent = async (req: AuthenticatedRequest<UpdateEventData, UpdateEventParams>, res: Response) => {
+    const updatedEvent = await eventService.update(req.params.eventId, req.body);
+    res.status(200).json(updatedEvent);
 };

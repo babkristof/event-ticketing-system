@@ -17,7 +17,15 @@ export const getEventSchema = z.object({
     ),
 });
 
+export const updateEventSchema = z.object({
+    name: z.string().optional(),
+    description: z.string().optional(),
+    date: z.date().optional(),
+    venue: z.string().optional(),
+    totalTickets: z.number().int().positive().optional(),
+});
 
+export type UpdateEventData = z.infer<typeof updateEventSchema>;
 export type CreateEventData = z.infer<typeof createEventSchema>;
 export type GetEventData = z.infer<typeof getEventSchema>;
 

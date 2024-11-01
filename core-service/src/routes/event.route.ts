@@ -5,7 +5,7 @@ import authMiddleware from "../middlewares/auth.middleware";
 import roleMiddleware from "../middlewares/role.middleware";
 import { eventController} from "../controllers";
 import {validateBody} from "../middlewares/validateBody.middleware";
-import {createEventSchema, getEventSchema} from "../schemas/event.schema";
+import {createEventSchema, getEventSchema, updateEventSchema} from "../schemas/event.schema";
 import {validateParams} from "../middlewares/validateParams.middleware";
 import bookingRoutes from "./booking.route";
 
@@ -16,7 +16,8 @@ eventRoutes.post('/', [authMiddleware, roleMiddleware(Role.ADMIN)], validateBody
 eventRoutes.get('/', [authMiddleware, roleMiddleware(Role.ADMIN)], errorHandler(eventController.getEvents));
 eventRoutes.get('/:eventId', [authMiddleware, roleMiddleware(Role.ADMIN)], validateParams(getEventSchema), errorHandler(eventController.getEvent));
 eventRoutes.delete('/:eventId', [authMiddleware, roleMiddleware(Role.ADMIN)], validateParams(getEventSchema), errorHandler(eventController.deleteEvent));
-
+eventRoutes.patch('/:eventId',[authMiddleware, roleMiddleware(Role.ADMIN)], validateBody(updateEventSchema), validateParams(getEventSchema), errorHandler(eventController.updateEvent)
+);
 eventRoutes.use('/:eventId/bookings', bookingRoutes);
 
 export default eventRoutes;

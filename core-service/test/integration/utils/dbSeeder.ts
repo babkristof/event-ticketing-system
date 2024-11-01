@@ -67,6 +67,24 @@ export async function seedEvent(createdByUserId: number, eventData: typeof SAMPL
     return event.id;
 }
 
+export async function seedBooking(userId: number, eventId: number, ticketCount: number): Promise<number> {
+    const booking = await getPrismaClient().booking.create({
+        data: {
+            userId,
+            eventId,
+            ticketCount,
+        },
+    });
+
+    await getPrismaClient().event.update({
+        where: { id: eventId },
+        data: {
+            availableTickets: { decrement: ticketCount },
+        },
+    });
+
+    return booking.id;
+}
 export async function resetDb() {
     await getPrismaClient().$transaction([
         getPrismaClient().booking.deleteMany(),

@@ -20,6 +20,12 @@ describe('Template Service', () => {
         expect(result).toContain('Rendered template for booking_created_successful');
     });
 
+    it('renders the correct template for event_deleted_by_admin', async () => {
+        const emailData: EmailData = { emailType: 'event_deleted_by_admin', recipient: 'test@example.com', userName: 'Test User', eventName: 'Event', eventVenue: 'Venue', eventTime: new Date().toTimeString(), ticketCount: 1 };
+        const result = await renderEmailTemplate(emailData);
+        expect(result).toContain('Rendered template for event_deleted_by_admin');
+    });
+
     it('throws error for missing template', async () => {
         const emailData: EmailData = {
             emailType: 'invalid_type' as EmailData['emailType'],

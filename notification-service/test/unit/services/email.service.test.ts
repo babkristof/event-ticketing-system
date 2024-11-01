@@ -47,6 +47,14 @@ describe('Email Service', () => {
         }));
     });
 
+    it('sends an email with the correct subject for event_deleted_by_admin', async () => {
+        const deletedEventEmailData: EmailData = { ...emailData, emailType: 'event_deleted_by_admin' };
+        await sendEmail(deletedEventEmailData);
+
+        expect(mockSendMail).toHaveBeenCalledWith(expect.objectContaining({
+            subject: 'Event deleted'
+        }));
+    });
     it('sends an email with a default subject for unknown email types', async () => {
         const unknownEmailData = { ...emailData, emailType: 'unknown_type' as EmailData['emailType'] };
         await sendEmail(unknownEmailData);

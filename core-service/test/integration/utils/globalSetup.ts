@@ -1,13 +1,14 @@
-import { getContainer } from './container.singleton';
+import {getDbContainer, getRedisContainer} from './container.singleton';
 import { getPrismaClient } from '../../../src/database/prismaClient';
 import { execSync } from 'node:child_process';
 
 export default async () => {
-  const container = await getContainer();
-  const dbHost = container.getHost();
-  const dbPort = container.getMappedPort(5432);
-  const userName = container.getUsername();
-  const password = container.getPassword();
+  await getRedisContainer();
+  const dbContainer = await getDbContainer();
+  const dbHost = dbContainer.getHost();
+  const dbPort = dbContainer.getMappedPort(5432);
+  const userName = dbContainer.getUsername();
+  const password = dbContainer.getPassword();
   process.env.DATABASE_URL = `postgresql://${userName}:${password}@${dbHost}:${dbPort}/testdb`;
 
   await getPrismaClient().$connect();

@@ -2,7 +2,7 @@ import request from 'supertest';
 import app from '../../src/app';
 import jwt from 'jsonwebtoken';
 import config from '../../src/config/config';
-import {seedAdminUser, seedEvent, resetDb, SAMPLE_EVENT, seedTestUser, PAST_EVENT} from './utils/dbSeeder';
+import {seedAdminUser, seedEvent, resetDb, SAMPLE_EVENT, seedTestUser, PAST_EVENT, seedBooking} from './utils/dbSeeder';
 
 
 describe('Event Routes Integration Tests', () => {
@@ -136,7 +136,6 @@ describe('Event Routes Integration Tests', () => {
 
             expect(response.status).toBe(204);
 
-            // Verify the event no longer exists
             const getResponse = await request(app)
                 .get(`/api/events/${eventId}`)
                 .set('Authorization', `Bearer ${token}`);
@@ -151,7 +150,7 @@ describe('Event Routes Integration Tests', () => {
                 .delete(`/api/events/${eventId}`)
                 .set('Authorization', `Bearer ${userToken}`);
 
-            expect(response.status).toBe(401); // Unauthorized
+            expect(response.status).toBe(401);
             expect(response.body.message).toBe('Unauthorized');
         });
 
@@ -162,7 +161,7 @@ describe('Event Routes Integration Tests', () => {
                 .delete(`/api/events/${nonExistentEventId}`)
                 .set('Authorization', `Bearer ${token}`);
 
-            expect(response.status).toBe(404); // Not found
+            expect(response.status).toBe(404);
             expect(response.body.message).toBe('Event not found');
         });
 
@@ -173,8 +172,99 @@ describe('Event Routes Integration Tests', () => {
                 .delete(`/api/events/${pastEventId}`)
                 .set('Authorization', `Bearer ${token}`);
 
-            expect(response.status).toBe(409); // Conflict for past event
+            expect(response.status).toBe(409);
             expect(response.body.message).toBe('Cannot delete past events.');
+        });
+    });
+    describe('PATCH /api/events/:id', () => {
+        it('should successfully update an event when requested by an admin', async () => {
+            const eventId = await seedEvent(adminUserId);
+
+            const updateData = {
+                name: 'Updated Event Name',
+                venue: 'New Venue',
+                totalTickets: 220,
+            };
+
+            const response = await request(app)
+                .patch(`/api/events/${eventId}`)
+                .set('Authorization', `Bearer ${token}`)
+                .send(updateData);
+
+            expect(response.status).toBe(200);
+            expect(response.body).toHaveProperty('name', updateData.name);
+            expect(response.body).toHaveProperty('venue', updateData.venue);
+            expect(response.body).toHaveProperty('totalTickets', updateData.totalTickets);
+        });
+
+        it('should return 401 if a user with CUSTOMER role tries to update an event', async () => {
+            const eventId = await seedEvent(adminUserId);
+
+            const updateData = { name: 'Unauthorized Update Attempt' };
+
+            const response = await request(app)
+                .patch(`/api/events/${eventId}`)
+                .set('Authorization', `Bearer ${userToken}`)
+                .send(updateData);
+
+            expect(response.status).toBe(401);
+            expect(response.body.message).toBe('Unauthorized');
+        });
+
+        it('should return 404 if the event does not exist', async () => {
+            const nonExistentEventId = 999;
+
+            const updateData = { name: 'Non-existent Event' };
+
+            const response = await request(app)
+                .patch(`/api/events/${nonExistentEventId}`)
+                .set('Authorization', `Bearer ${token}`)
+                .send(updateData);
+
+            expect(response.status).toBe(404);
+            expect(response.body.message).toBe('Event not found');
+        });
+
+        it('should return 409 if attempting to update a past event', async () => {
+            const pastEventId = await seedEvent(adminUserId, PAST_EVENT);
+
+            const updateData = { name: 'Update Past Event' };
+
+            const response = await request(app)
+                .patch(`/api/events/${pastEventId}`)
+                .set('Authorization', `Bearer ${token}`)
+                .send(updateData);
+
+            expect(response.status).toBe(409);
+            expect(response.body.message).toBe('Cannot update past events');
+        });
+
+        it('should return 409 if totalTickets is set below the number of already sold tickets', async () => {
+            const eventId = await seedEvent(adminUserId);
+            await seedBooking(customerUserId, eventId, 30);
+
+            const response = await request(app)
+                .patch(`/api/events/${eventId}`)
+                .set('Authorization', `Bearer ${token}`)
+                .send({ totalTickets: 1 });
+
+            expect(response.status).toBe(409);
+            expect(response.body.message).toBe('Total tickets cannot be less than the number of already sold tickets');
+        });
+
+        it('should notify users with bookings if date or venue is updated', async () => {
+            const eventId = await seedEvent(adminUserId);
+
+            const updateData = {
+                venue: 'Updated Venue'
+            };
+
+            const response = await request(app)
+                .patch(`/api/events/${eventId}`)
+                .set('Authorization', `Bearer ${token}`)
+                .send(updateData);
+
+            expect(response.status).toBe(200);
         });
     });
 

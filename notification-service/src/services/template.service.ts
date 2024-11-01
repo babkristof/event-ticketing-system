@@ -6,7 +6,8 @@ import logger from "../config/logger";
 const templateMap: Record<string, string> = {
     booking_created_successful: 'bookingCreatedSuccessful.ejs',
     booking_deleted_successful: 'bookingDeletedSuccessful.ejs',
-    event_deleted_by_admin: 'eventDeletedSuccessful.ejs'
+    event_deleted_by_admin: 'eventDeletedSuccessful.ejs',
+    event_updated_by_admin: 'eventUpdatedSuccessful.ejs',
 };
 
 export const renderEmailTemplate = async (emailData: EmailData): Promise<string> => {

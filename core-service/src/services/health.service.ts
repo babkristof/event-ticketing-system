@@ -1,8 +1,9 @@
 import Redis from 'ioredis';
 import {getPrismaClient} from "../database/prismaClient";
 import logger from "../config/logger";
+import config from "../config/config";
 
-const redisClient = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
+const redisClient = new Redis({host: config.redis.host, port: config.redis.port});
 
 export const checkDatabase = async (): Promise<'up' | 'down'> => {
     try {

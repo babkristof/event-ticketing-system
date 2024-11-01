@@ -10,6 +10,7 @@ services:
       NODE_ENV: development
       DATABASE_URL: "postgresql://postgres:postgres@pg_db:5432/event?schema=public"
       REDIS_HOST: redis
+      REDIS_PORT: 6379
       EMAIL_HOST: mailhog
       EMAIL_PORT: 1025
       JWT_SECRET: mysecret

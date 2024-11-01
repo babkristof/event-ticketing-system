@@ -41,6 +41,7 @@ describe('Event Service', () => {
                 findUnique: jest.fn(),
                 findMany: jest.fn(),
                 delete: jest.fn(),
+                update: jest.fn()
             },
             booking: {
                 findMany: jest.fn(),
@@ -207,4 +208,125 @@ describe('Event Service', () => {
             expect(logger.error).toHaveBeenCalledWith(`Failed to send cancellation email to user ID ${mockUser.id}`, { error: emailJobError });
         });
     });
+
+
+
+    describe('Event Service - Update Function', () => {
+        let mockEvent: Event;
+        let mockUser: User;
+        let mockBookings: Booking[];
+
+        beforeEach(() => {
+            mockEvent = {
+                id: 1,
+                name: 'Sample Event',
+                description: 'An example event description',
+                date: new Date('2024-11-16T13:15:00.000Z'),
+                venue: 'Berlin',
+                totalTickets: 200,
+                availableTickets: 180,
+                createdBy: 1,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            };
+
+            mockUser = {
+                id: 1,
+                name: 'John Doe',
+                email: 'john@example.com',
+                passwordHash: 'hashedpassword',
+                role: 'CUSTOMER',
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            };
+
+            mockBookings = [
+                {
+                    id: 1,
+                    userId: mockUser.id,
+                    user: mockUser,
+                    eventId: mockEvent.id,
+                    ticketCount: 2,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                } as Booking,
+            ];
+        });
+
+        afterEach(() => {
+            jest.clearAllMocks();
+        });
+
+        it('should update the event and notify users if date or venue changes', async () => {
+            mockPrismaClient.event.findUnique.mockResolvedValueOnce({ ...mockEvent, bookings: mockBookings });
+            mockPrismaClient.event.update.mockResolvedValueOnce({ ...mockEvent, venue: 'New Venue' });
+
+            const updateData = { venue: 'New Venue' };
+            const result = await eventService.update(mockEvent.id, updateData);
+
+            expect(mockPrismaClient.event.update).toHaveBeenCalledWith({
+                where: { id: mockEvent.id },
+                data: expect.objectContaining(updateData),
+            });
+            expect(result.venue).toBe('New Venue');
+            expect(addEmailJob).toHaveBeenCalledTimes(mockBookings.length);
+        });
+
+        it('should not notify users if irrelevant fields are updated', async () => {
+            mockPrismaClient.event.findUnique.mockResolvedValueOnce({ ...mockEvent, bookings: mockBookings });
+            mockPrismaClient.event.update.mockResolvedValueOnce(mockEvent);
+
+            const updateData = { name: 'Updated Name' };
+            await eventService.update(mockEvent.id, updateData);
+
+            expect(mockPrismaClient.event.update).toHaveBeenCalledWith({
+                where: { id: mockEvent.id },
+                data: expect.objectContaining(updateData),
+            });
+            expect(addEmailJob).not.toHaveBeenCalled();
+        });
+
+        it('should throw ConflictException if updating past events', async () => {
+            const pastEvent = { ...mockEvent, date: new Date('2022-11-16T13:15:00.000Z') };
+            mockPrismaClient.event.findUnique.mockResolvedValueOnce(pastEvent);
+
+            await expect(eventService.update(mockEvent.id, {})).rejects.toThrow(ConflictException);
+        });
+
+        it('should throw ConflictException if reducing total tickets below sold tickets', async () => {
+            mockPrismaClient.event.findUnique.mockResolvedValueOnce(mockEvent);
+
+            const updateData = { totalTickets: 15 };
+            await expect(eventService.update(mockEvent.id, updateData)).rejects.toThrow(ConflictException);
+        });
+
+        it('should adjust available tickets if total tickets are increased', async () => {
+            const increasedTicketsEvent = { ...mockEvent, availableTickets: 200 };
+            mockPrismaClient.event.findUnique.mockResolvedValueOnce(mockEvent);
+            mockPrismaClient.event.update.mockResolvedValueOnce(increasedTicketsEvent);
+
+            const updateData = { totalTickets: 220 };
+            const result = await eventService.update(mockEvent.id, updateData);
+
+            expect(mockPrismaClient.event.update).toHaveBeenCalledWith({
+                where: { id: mockEvent.id },
+                data: expect.objectContaining({ totalTickets: 220, availableTickets: 200 }),
+            });
+            expect(result.availableTickets).toBe(200);
+        });
+
+        it('should log an error if email notification fails', async () => {
+            const emailError = new Error('Email sending failed');
+            (addEmailJob as jest.Mock).mockRejectedValueOnce(emailError);
+
+            mockPrismaClient.event.findUnique.mockResolvedValueOnce({ ...mockEvent, bookings: mockBookings });
+            mockPrismaClient.event.update.mockResolvedValueOnce({ ...mockEvent, venue: 'New Venue' });
+
+            await eventService.update(mockEvent.id, { venue: 'New Venue' });
+
+            expect(logger.error).toHaveBeenCalledWith(expect.stringContaining('Failed to send update notification email'), { error: emailError });
+        });
+    });
+
+
 });
