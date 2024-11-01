@@ -1,6 +1,6 @@
 import request from 'supertest';
 import app from '../../src/app';
-import {seedTestUser, resetDb, REGISTERED_USER} from "./utils/dbSeeder";
+import { seedTestUser, resetDb, REGISTERED_USER } from './utils/dbSeeder';
 
 describe('Auth Integration Tests', () => {
   const SIGNUP_URL = '/api/auth/signup';
@@ -23,30 +23,24 @@ describe('Auth Integration Tests', () => {
       expect(response.status).toBe(201);
       expect(response.body).toHaveProperty('message', USER_REGISTERED_SUCCESS_MSG);
     });
-    it(
-      'should not allowed to register with case varian of existing email',
-      async () => {
-        await seedTestUser();
-        const response = await request(app).post(SIGNUP_URL).send({
-          name: REGISTERED_USER.name,
-          email: REGISTERED_USER.email.toUpperCase(),
-          password: REGISTERED_USER.password
-        });
+    it('should not allowed to register with case varian of existing email', async () => {
+      await seedTestUser();
+      const response = await request(app).post(SIGNUP_URL).send({
+        name: REGISTERED_USER.name,
+        email: REGISTERED_USER.email.toUpperCase(),
+        password: REGISTERED_USER.password
+      });
 
-        expect(response.status).toBe(400);
-        expect(response.body).toHaveProperty('message', USER_EXISTS_MSG);
-      }
-    );
-    it(
-      'should return 400 for registering an already existing email',
-      async () => {
-        await seedTestUser();
-        const response = await request(app).post(SIGNUP_URL).send(REGISTERED_USER);
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('message', USER_EXISTS_MSG);
+    });
+    it('should return 400 for registering an already existing email', async () => {
+      await seedTestUser();
+      const response = await request(app).post(SIGNUP_URL).send(REGISTERED_USER);
 
-        expect(response.status).toBe(400);
-        expect(response.body).toHaveProperty('message', USER_EXISTS_MSG);
-      }
-    );
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('message', USER_EXISTS_MSG);
+    });
     it('should return 400 for invalid name', async () => {
       const response = await request(app).post(SIGNUP_URL).send({
         name: 1234,

@@ -5,13 +5,28 @@ import { validateBody } from '../middlewares/validateBody.middleware';
 import { validateParams } from '../middlewares/validateParams.middleware';
 import { createBookingSchema, getBookingSchema } from '../schemas/booking.schema';
 import { errorHandler } from '../middlewares/error.handler';
-import roleMiddleware from "../middlewares/role.middleware";
-import {Role} from "@prisma/client";
+import roleMiddleware from '../middlewares/role.middleware';
+import { Role } from '@prisma/client';
 
 const bookingRoutes: Router = Router({ mergeParams: true });
 
-bookingRoutes.post('/', [authMiddleware, roleMiddleware(Role.CUSTOMER)], validateBody(createBookingSchema), errorHandler(bookingController.createBooking));
-bookingRoutes.get('/:bookingId', [authMiddleware, roleMiddleware(Role.CUSTOMER)], validateParams(getBookingSchema), errorHandler(bookingController.getBooking));
-bookingRoutes.delete('/:bookingId', [authMiddleware, roleMiddleware(Role.CUSTOMER)], validateParams(getBookingSchema), errorHandler(bookingController.cancelBooking));
+bookingRoutes.post(
+  '/',
+  [authMiddleware, roleMiddleware(Role.CUSTOMER)],
+  validateBody(createBookingSchema),
+  errorHandler(bookingController.createBooking)
+);
+bookingRoutes.get(
+  '/:bookingId',
+  [authMiddleware, roleMiddleware(Role.CUSTOMER)],
+  validateParams(getBookingSchema),
+  errorHandler(bookingController.getBooking)
+);
+bookingRoutes.delete(
+  '/:bookingId',
+  [authMiddleware, roleMiddleware(Role.CUSTOMER)],
+  validateParams(getBookingSchema),
+  errorHandler(bookingController.cancelBooking)
+);
 
 export default bookingRoutes;

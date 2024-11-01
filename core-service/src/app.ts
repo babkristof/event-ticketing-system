@@ -2,8 +2,7 @@ import express, { Application } from 'express';
 import { errorMiddleware } from './middlewares/error.middleware';
 import { requestLogger } from './middlewares/logger.middleware';
 import apiRouter from './routes';
-import {healthController} from "./controllers";
-
+import { healthController } from './controllers';
 
 const app: Application = express();
 

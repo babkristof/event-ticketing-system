@@ -1,4 +1,4 @@
-import {getDbContainer, getRedisContainer} from './container.singleton';
+import { getDbContainer, getRedisContainer } from './container.singleton';
 import { getPrismaClient } from '../../../src/database/prismaClient';
 import { execSync } from 'node:child_process';
 

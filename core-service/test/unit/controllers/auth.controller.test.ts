@@ -3,7 +3,7 @@ import * as authService from '../../../src/services/auth.service';
 import { LoginResponse } from '../../../src/types/auth';
 import * as authController from '../../../src/controllers/auth.controller';
 import { LoginData, SignUpData } from '../../../src/schemas/auth.schema';
-import {Role} from "@prisma/client";
+import { Role } from '@prisma/client';
 
 describe('Auth Controller', () => {
   let res: Partial<Response>;
@@ -16,7 +16,7 @@ describe('Auth Controller', () => {
 
     res = {
       status: statusMock,
-      json: jsonMock,
+      json: jsonMock
     };
   });
 
@@ -32,8 +32,8 @@ describe('Auth Controller', () => {
         body: {
           name: '',
           email: '',
-          password: '',
-        },
+          password: ''
+        }
       };
     });
 
@@ -45,8 +45,8 @@ describe('Auth Controller', () => {
         passwordHash: 'hashedPassword',
         role: Role.CUSTOMER,
         createdAt: new Date(),
-        updatedAt: new Date(),
-      }
+        updatedAt: new Date()
+      };
       req.body = { name: 'John Doe', email: 'john@example.com', password: 'securepassword' };
 
       const signupServiceMock = jest.spyOn(authService, 'signup').mockResolvedValue(mockUser);
@@ -63,7 +63,9 @@ describe('Auth Controller', () => {
 
       req.body = { name: 'John Doe', email: 'john@example.com', password: 'securepassword' };
 
-      await expect(authController.signup(req as Request<never, never, SignUpData>, res as Response)).rejects.toThrow('Signup failed');
+      await expect(authController.signup(req as Request<never, never, SignUpData>, res as Response)).rejects.toThrow(
+        'Signup failed'
+      );
       expect(signupServiceMock).toHaveBeenCalledWith(req.body);
       expect(statusMock).not.toHaveBeenCalled();
       expect(jsonMock).not.toHaveBeenCalled();
@@ -77,15 +79,15 @@ describe('Auth Controller', () => {
       req = {
         body: {
           email: '',
-          password: '',
-        },
+          password: ''
+        }
       };
     });
 
     it('should call loginService and return user and token on success', async () => {
       const mockResponse: LoginResponse = {
         user: { id: 1, name: 'John Doe', email: 'john@example.com', role: 'CUSTOMER' },
-        token: 'mockToken',
+        token: 'mockToken'
       };
       const loginServiceMock = jest.spyOn(authService, 'login').mockResolvedValue(mockResponse);
 
@@ -102,7 +104,9 @@ describe('Auth Controller', () => {
 
       req.body = { email: 'john@example.com', password: 'password' };
 
-      await expect(authController.login(req as Request<never, never, LoginData>, res as Response)).rejects.toThrow('Login failed');
+      await expect(authController.login(req as Request<never, never, LoginData>, res as Response)).rejects.toThrow(
+        'Login failed'
+      );
       expect(loginServiceMock).toHaveBeenCalledWith(req.body);
       expect(jsonMock).not.toHaveBeenCalled();
     });

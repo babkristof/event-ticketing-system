@@ -11,17 +11,10 @@ const winstonFormat = winston.format.printf((obj) => {
 });
 const logger = winston.createLogger({
   level: config.env === 'development' ? 'debug' : 'info',
-  format: winston.format.combine(
-      winston.format.timestamp(),
-      winstonFormat,
-      winston.format.json()
-  ),
+  format: winston.format.combine(winston.format.timestamp(), winstonFormat, winston.format.json()),
   transports: [
     new winston.transports.Console({
-      format: winston.format.combine(
-          winston.format.colorize(),
-          winston.format.simple()
-      ),
+      format: winston.format.combine(winston.format.colorize(), winston.format.simple())
     }),
 
     new winston.transports.DailyRotateFile({
@@ -29,7 +22,7 @@ const logger = winston.createLogger({
       datePattern: 'YYYY-MM-DD',
       zippedArchive: true,
       maxSize: '20m',
-      maxFiles: '14d',
+      maxFiles: '14d'
     }),
 
     new winston.transports.DailyRotateFile({
@@ -38,9 +31,9 @@ const logger = winston.createLogger({
       datePattern: 'YYYY-MM-DD',
       zippedArchive: true,
       maxSize: '20m',
-      maxFiles: '14d',
-    }),
-  ],
+      maxFiles: '14d'
+    })
+  ]
 });
 
 export default logger;

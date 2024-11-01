@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response} from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { ZodError, ZodSchema } from 'zod';
 import { BadRequestException } from '../exceptions/BadRequestException';
 import logger from '../config/logger';

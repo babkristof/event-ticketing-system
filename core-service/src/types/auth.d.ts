@@ -1,4 +1,4 @@
-import {PublicUser} from "./user";
+import { PublicUser } from './user';
 
 export interface AuthPayload {
   userId: number;

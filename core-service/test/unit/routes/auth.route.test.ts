@@ -3,7 +3,7 @@ import { mockLoginResponse } from '../mocks/loginResponse.mock';
 import app from '../../../src/app';
 import * as authController from '../../../src/controllers/auth.controller';
 
-jest.mock("../../../src/controllers/auth.controller");
+jest.mock('../../../src/controllers/auth.controller');
 
 describe('Auth Route Validations', () => {
   let signupMock: any;

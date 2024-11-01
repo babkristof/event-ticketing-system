@@ -1,9 +1,8 @@
 import { PostgreSqlContainer, StartedPostgreSqlContainer } from '@testcontainers/postgresql';
-import {GenericContainer, StartedTestContainer} from "testcontainers";
+import { GenericContainer, StartedTestContainer } from 'testcontainers';
 
 let postgresContainer: StartedPostgreSqlContainer | null = null;
 let redisContainer: StartedTestContainer | null = null;
-
 
 export async function getDbContainer(): Promise<StartedPostgreSqlContainer> {
   if (!postgresContainer) {
@@ -18,9 +17,7 @@ export async function getDbContainer(): Promise<StartedPostgreSqlContainer> {
 
 export async function getRedisContainer(): Promise<StartedTestContainer> {
   if (!redisContainer) {
-    redisContainer = await new GenericContainer('redis:7')
-        .withExposedPorts(6379)
-        .start();
+    redisContainer = await new GenericContainer('redis:7').withExposedPorts(6379).start();
   }
   process.env.REDIS_PORT = redisContainer.getFirstMappedPort().toString();
   return redisContainer;

@@ -9,7 +9,7 @@ import { AuthPayload, LoginResponse } from '../types/auth';
 import { User } from '@prisma/client';
 import { LoginData, SignUpData } from '../schemas/auth.schema';
 import { toPublicUser } from '../utils/user.util';
-import logger from "../config/logger";
+import logger from '../config/logger';
 
 export const signup = async ({ name, email, password }: SignUpData): Promise<User> => {
   const normalizedEmail = email.toLowerCase();
